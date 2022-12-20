@@ -1,11 +1,22 @@
-import Head from 'next/head'
-import Image from 'next/image'
-import { Inter } from '@next/font/google'
-import styles from '../styles/Home.module.css'
+import Head from 'next/head';
+import Image from 'next/image';
 
-const inter = Inter({ subsets: ['latin'] })
+import vercelImg from '/public/vercel.svg';
 
-export default function Home() {
+const data = [
+  { id: 1, title: 'Movie Title 1', genres: ['action'], year: '2020' },
+  { id: 2, title: 'Movie Title 2', genres: ['adventure', 'action'], year: '2021' },
+  { id: 3, title: 'Movie Title 3', genres: ['adventure', 'crime'], year: '2019' },
+  { id: 4, title: 'Movie Title 4', genres: ['adventure', 'fantasy'], year: '2019' },
+  { id: 5, title: 'Movie Title 5', genres: ['adventure', 'sci-fi'], year: '2017' },
+  { id: 6, title: 'Movie Title 6', genres: ['documentary', 'biography'], year: '2018' },
+  { id: 7, title: 'Movie Title 7', genres: ['documentary', 'biography'], year: '2014' },
+  { id: 8, title: 'Movie Title 8', genres: ['documentary', 'biography'], year: '2014' },
+  { id: 9, title: 'Movie Title 9', genres: ['documentary', 'biography'], year: '2013' },
+  { id: 10, title: 'Movie Title 10', genres: ['documentary', 'biography'], year: '2012' },
+];
+
+const Home = () => {
   return (
     <>
       <Head>
@@ -14,110 +25,51 @@ export default function Home() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main className={styles.main}>
-        <div className={styles.description}>
-          <p>
-            Get started by editing&nbsp;
-            <code className={styles.code}>pages/index.tsx</code>
-          </p>
-          <div>
-            <a
-              href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              By{' '}
-              <Image
-                src="/vercel.svg"
-                alt="Vercel Logo"
-                className={styles.vercelLogo}
-                width={100}
-                height={24}
-                priority
-              />
-            </a>
-          </div>
-        </div>
-
-        <div className={styles.center}>
-          <Image
-            className={styles.logo}
-            src="/next.svg"
-            alt="Next.js Logo"
-            width={180}
-            height={37}
-            priority
-          />
-          <div className={styles.thirteen}>
-            <Image
-              src="/thirteen.svg"
-              alt="13"
-              width={40}
-              height={31}
-              priority
+      <main className='w-full bg-gray-800 min-h-screen'>
+        <nav className='w-full bg-gray-900 py-2'>
+          <h1 className='mx-auto text-center text-emerald-500 xl:text-4xl lg:text-3xl'>MovieRama</h1>
+        </nav>
+        <section className='w-full bg-gray-900 py-5 sm:py-10 mx-auto text-center flex justify-center items-end border-b border-b-emerald-900'>
+          <div className='max-w-7xl w-full px-4'>
+            <input
+              type='text'
+              placeholder='Search for a title'
+              className='px-4 py-2 text-lg w-full xl:w-1/2 lg:w-2/3 md:w-2/3 sm:w-4/5 focus:outline-none bg-gray-700 text-emerald-300 border border-emerald-300 rounded'
             />
           </div>
-        </div>
-
-        <div className={styles.grid}>
-          <a
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <h2 className={inter.className}>
-              Docs <span>-&gt;</span>
-            </h2>
-            <p className={inter.className}>
-              Find in-depth information about Next.js features and&nbsp;API.
-            </p>
-          </a>
-
-          <a
-            href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <h2 className={inter.className}>
-              Learn <span>-&gt;</span>
-            </h2>
-            <p className={inter.className}>
-              Learn about Next.js in an interactive course with&nbsp;quizzes!
-            </p>
-          </a>
-
-          <a
-            href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <h2 className={inter.className}>
-              Templates <span>-&gt;</span>
-            </h2>
-            <p className={inter.className}>
-              Discover and deploy boilerplate example Next.js&nbsp;projects.
-            </p>
-          </a>
-
-          <a
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <h2 className={inter.className}>
-              Deploy <span>-&gt;</span>
-            </h2>
-            <p className={inter.className}>
-              Instantly deploy your Next.js site to a shareable URL
-              with&nbsp;Vercel.
-            </p>
-          </a>
-        </div>
+        </section>
+        <section className=''>
+          <div
+            className={`
+              max-w-7xl bg-gray-700 min-h-screen mx-auto p-5 pt-10 grid grid-cols-1 gap-5
+              xl:grid-cols-5 lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 
+            `}>
+            {data.map((movie) => {
+              return (
+                <div
+                  key={movie.id}
+                  className='min-h-min border-2 rounded border-yellow-400 bg-emerald-700 flex flex-col justify-between'
+                >
+                  <Image src={vercelImg} alt='image' className='flex-grow' />
+                  <div className='flex flex-wrap p-1 justify-start gap-1'>
+                    {movie.genres.map(g => (
+                      <span
+                        key={g}
+                        className='text-gray-800 font-medium p-1 border rounded border-white'
+                      >
+                          {g}
+                      </span>
+                    ))}
+                  </div>
+                  <div className='bg-yellow-300 text-amber-900 font-medium text-center py-2'>{movie.title} ({movie.year})</div>
+                </div>
+              );
+            })}
+          </div>
+        </section>
       </main>
     </>
-  )
+  );
 }
+
+export default Home;
