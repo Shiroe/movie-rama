@@ -1,7 +1,8 @@
 const { fontFamily } = require('tailwindcss/defaultTheme');
 const colors = require('tailwindcss/colors');
 
-const { transparent, black, white, stone, gray, red, yellow, amber, emerald } = colors;
+const { transparent, black, white, stone, gray, red, yellow, amber, emerald } =
+  colors;
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
