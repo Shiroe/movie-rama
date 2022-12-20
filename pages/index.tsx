@@ -1,7 +1,7 @@
 import Head from 'next/head';
 import Image from 'next/image';
 
-import vercelImg from '/public/vercel.svg';
+import imgSrc from '/public/dummy-img.jpg';
 
 const data = [
   { id: 1, title: 'Movie Title 1', genres: ['action'], year: '2020' },
@@ -96,20 +96,20 @@ const Home = () => {
               return (
                 <div
                   key={movie.id}
-                  className="flex min-h-min flex-col justify-between rounded border-2 border-yellow-400 bg-emerald-700"
+                  className="flex min-h-min flex-col justify-between rounded border-2 border-yellow-400 bg-emerald-700 relative"
                 >
-                  <Image src={vercelImg} alt="image" className="flex-grow" />
-                  <div className="flex flex-wrap justify-start gap-1 p-1">
+                  <Image src={imgSrc} alt="image" className="flex-grow" />
+                  <div className="flex flex-wrap justify-start gap-1 p-1 absolute bottom-10 left-0 right-0">
                     {movie.genres.map((g) => (
                       <span
                         key={g}
-                        className="rounded border border-white p-1 font-medium text-gray-800"
+                        className="rounded border border-white p-1 font-medium text-gray-800 bg-yellow-200"
                       >
                         {g}
                       </span>
                     ))}
                   </div>
-                  <div className="bg-yellow-300 py-2 text-center font-medium text-amber-900">
+                  <div className="bg-yellow-300 py-2 text-center font-medium text-amber-900 absolute left-0 right-0 bottom-0 ">
                     {movie.title} ({movie.year})
                   </div>
                 </div>
