@@ -1,67 +1,67 @@
+import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
 import Image from 'next/image';
-
-import imgSrc from '/public/dummy-img.jpg';
-
-const data = [
-  { id: 1, title: 'Movie Title 1', genres: ['action'], year: '2020' },
-  {
-    id: 2,
-    title: 'Movie Title 2',
-    genres: ['adventure', 'action'],
-    year: '2021',
-  },
-  {
-    id: 3,
-    title: 'Movie Title 3',
-    genres: ['adventure', 'crime'],
-    year: '2019',
-  },
-  {
-    id: 4,
-    title: 'Movie Title 4',
-    genres: ['adventure', 'fantasy'],
-    year: '2019',
-  },
-  {
-    id: 5,
-    title: 'Movie Title 5',
-    genres: ['adventure', 'sci-fi'],
-    year: '2017',
-  },
-  {
-    id: 6,
-    title: 'Movie Title 6',
-    genres: ['documentary', 'biography'],
-    year: '2018',
-  },
-  {
-    id: 7,
-    title: 'Movie Title 7',
-    genres: ['documentary', 'biography'],
-    year: '2014',
-  },
-  {
-    id: 8,
-    title: 'Movie Title 8',
-    genres: ['documentary', 'biography'],
-    year: '2014',
-  },
-  {
-    id: 9,
-    title: 'Movie Title 9',
-    genres: ['documentary', 'biography'],
-    year: '2013',
-  },
-  {
-    id: 10,
-    title: 'Movie Title 10',
-    genres: ['documentary', 'biography'],
-    year: '2012',
-  },
-];
+import type { Movie, NOW_PLAYING_RESPONSE } from './api/now_playing';
+import type { GENRE, GENRES_RESPONSE } from './api/genres';
 
 const Home = () => {
+  const [loading, setLoading] = useState<boolean>(false);
+  const [search, setSearch] = useState<string>('');
+
+  const [movies, setMovies] = useState<Movie[] | null>(null);
+  const [genres, setGenres] = useState<GENRE[] | null>(null);
+
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [totalPages, setTotalPages] = useState<number>(1);
+  const [totalResults, setTotalResults] = useState<number>(1);
+
+  // useEffect(() => {
+  //   const updateLoadedData = () => {
+  //     const currentPosition = window.scrollY;
+  //     const scrollHeight = document.body.scrollHeight - window.innerHeight;
+      
+  //     if (Math.abs(Math.ceil(scrollHeight) - Math.ceil(currentPosition)) <= 3) {
+  //       setLoadedDataIndex(loadedDataIndex + perPage);
+  //       window.scrollTo({ top: scrollHeight })
+  //     }
+  //     console.log('scrolled', scrollHeight, ' : ', currentPosition);
+  //   }
+
+  //   window.addEventListener('scroll', updateLoadedData);
+
+  //   return () => {
+  //     window.removeEventListener('scroll', updateLoadedData);
+  //   }
+  // })
+
+  useEffect(() => {
+    if (!genres) {
+      fetchGenres();
+    }
+  }, [genres])
+
+  useEffect(() => {
+    if (!movies) {
+      fetchMoviesNow();
+    }
+  }, [movies])
+
+  const fetchMoviesNow = async () => {
+    const res = await fetch('/api/now_playing');
+    const { results, page, dates, total_pages, total_results }: NOW_PLAYING_RESPONSE = await res.json();
+    console.log('DATA:', results);
+    setCurrentPage(page);
+    setTotalPages(total_pages);
+    setTotalResults(total_results);
+    setMovies(results);
+  }
+
+  const fetchGenres = async () => {
+    const res = await fetch('/api/genres');
+    const { genres }: GENRES_RESPONSE = await res.json();
+    setGenres(genres);
+  }
+
   return (
     <>
       <Head>
@@ -80,6 +80,8 @@ const Home = () => {
           <div className="w-full max-w-7xl px-4">
             <input
               type="text"
+              value={search}
+              onChange={(ev) => setSearch(ev.target.value)}
               placeholder="Search for a title"
               className="w-full rounded border border-emerald-300 bg-gray-700 px-4 py-2 text-lg text-emerald-300 focus:outline-none sm:w-4/5 md:w-2/3 lg:w-2/3 xl:w-1/2"
             />
@@ -88,29 +90,41 @@ const Home = () => {
         <section className="">
           <div
             className={`
-              mx-auto grid min-h-screen max-w-7xl grid-cols-1 gap-5 bg-gray-700 p-5 pt-10
-              sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 
+              mx-auto grid max-w-7xl grid-cols-1 gap-5 bg-gray-700 p-5 pt-10
+              sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 
             `}
           >
-            {data.map((movie) => {
+            {movies && movies.filter(m => m.title.toLowerCase().includes(search.toLowerCase())).map((movie) => {
               return (
                 <div
                   key={movie.id}
-                  className="flex min-h-min flex-col justify-between rounded border-2 border-yellow-400 bg-emerald-700 relative"
+                  className="flex flex-col justify-between rounded border-2 border-emerald-400 bg-emerald-700 relative"
                 >
-                  <Image src={imgSrc} alt="image" className="flex-grow" />
-                  <div className="flex flex-wrap justify-start gap-1 p-1 absolute bottom-10 left-0 right-0">
-                    {movie.genres.map((g) => (
+                  <Image
+                    src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
+                    width={720}
+                    height={300}
+                    alt="movie image"
+                    // className="flex-grow"
+                  />
+                  <div className="flex flex-wrap justify-start gap-1 p-1 absolute top-0 left-0 right-0">
+                    {movie.genre_ids.map((g) => (
                       <span
                         key={g}
-                        className="rounded border border-white p-1 font-medium text-gray-800 bg-yellow-200"
+                        className="rounded border border-emerald-400 p-1 text-sm font-semibold text-gray-800 bg-emerald-300 bg-opacity-100"
                       >
-                        {g}
+                        {genres?.filter(gen => gen.id === g)[0]?.name}
                       </span>
                     ))}
                   </div>
-                  <div className="bg-yellow-300 py-2 text-center font-medium text-amber-900 absolute left-0 right-0 bottom-0 ">
-                    {movie.title} ({movie.year})
+                  <div className="bg-emerald-500 py-1 text-center text-base text-gray-900">
+                    <span className=''>
+                      {new Date(movie.release_date).toLocaleDateString()}
+                    </span>
+                    <br />
+                    <span className='font-semibold'>
+                      {movie.title}
+                    </span>
                   </div>
                 </div>
               );
