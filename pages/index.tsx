@@ -1,66 +1,95 @@
 import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
-import Image from 'next/image';
+import { useQuery } from 'react-query';
+
 import type { Movie, NOW_PLAYING_RESPONSE } from './api/now_playing';
 import type { GENRE, GENRES_RESPONSE } from './api/genres';
+import MovieCard from 'src/components/MovieCard';
+import Navigation from 'src/Navigation';
+
+type FETCH_PARAMS = {
+  page: number;
+  search?: string;
+}
+const fetcher = async (url: string, params: FETCH_PARAMS ) => {
+  const { page = 1, search = '' } = params;
+  const paramsToPass = url.includes('genres') ? {} : { page, search };
+  return await fetch(url, { method: 'POST', body: JSON.stringify(paramsToPass)}).then((res) => res.json());
+}
+
+type MOVIE_ENDPOINTS = 'now_playing' | 'movies';
 
 const Home = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [search, setSearch] = useState<string>('');
 
+  const [movieEndpoint, setMovieEndpoint] = useState<MOVIE_ENDPOINTS>('now_playing');
   const [movies, setMovies] = useState<Movie[] | null>(null);
-  const [genres, setGenres] = useState<GENRE[] | null>(null);
 
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
   const [totalResults, setTotalResults] = useState<number>(1);
 
-  // useEffect(() => {
-  //   const updateLoadedData = () => {
-  //     const currentPosition = window.scrollY;
-  //     const scrollHeight = document.body.scrollHeight - window.innerHeight;
+  const [scrollPos, setScrollPos] = useState<number>(0);
+  const [viewportHeight, setViewportHeight] = useState<number>(0);
+
+  const {
+    isLoading: isGenresLoading,
+    error: genresError,
+    data: genresData
+  } = useQuery(['genres', { currentPage }], () => fetcher('/api/genres', { page: currentPage }));
+
+  const {
+    isLoading: isMoviesLoading,
+    error: moviesError,
+    data: moviesData
+  } = useQuery([movieEndpoint, currentPage, search], () => fetcher(`/api/${movieEndpoint}`, { page: currentPage, search }), {
+    onSuccess(data: NOW_PLAYING_RESPONSE) {
+      console.log('QUERY RES: ', data);
+      if (currentPage === 1) {
+        setMovies(data.results);
+      } else if (currentPage > 1 && movies) {
+        if (movies[movies.length - 1]?.id !== data.results[data.results.length - 1]?.id) {
+          setMovies([...movies, ...data.results])
+        } 
+      }
+      setTotalPages(data.total_pages)
+      setTotalResults(data.total_results);
+    },
+  });
+
+  useEffect(() => {
+    console.log('search effect')
+    setCurrentPage(1);
+    if (search.length > 0) {
+      setMovieEndpoint('movies');
+    } else { 
+      setMovieEndpoint('now_playing');
+    }
+  }, [search]);
+
+  useEffect(() => {
+    console.log('window scroll effect')
+    const updateScrollPosition = () => {
+      const currentPosition = window.scrollY;
+      const scrollHeight = document.body.scrollHeight - window.innerHeight;
       
-  //     if (Math.abs(Math.ceil(scrollHeight) - Math.ceil(currentPosition)) <= 3) {
-  //       setLoadedDataIndex(loadedDataIndex + perPage);
-  //       window.scrollTo({ top: scrollHeight })
-  //     }
-  //     console.log('scrolled', scrollHeight, ' : ', currentPosition);
-  //   }
+      setScrollPos(currentPosition);
+      setViewportHeight(window.screen.height);
 
-  //   window.addEventListener('scroll', updateLoadedData);
-
-  //   return () => {
-  //     window.removeEventListener('scroll', updateLoadedData);
-  //   }
-  // })
-
-  useEffect(() => {
-    if (!genres) {
-      fetchGenres();
+      console.log('scrolled', scrollHeight, ' : ', currentPosition);
+      if (Math.abs(Math.ceil(scrollHeight) - Math.ceil(currentPosition)) <= 3) {
+        if (currentPage >= totalPages) return;
+        setCurrentPage(currentPage + 1);
+      }
     }
-  }, [genres])
 
-  useEffect(() => {
-    if (!movies) {
-      fetchMoviesNow();
+    window.addEventListener('scroll', updateScrollPosition);
+
+    return () => {
+      window.removeEventListener('scroll', updateScrollPosition);
     }
-  }, [movies])
-
-  const fetchMoviesNow = async () => {
-    const res = await fetch('/api/now_playing');
-    const { results, page, dates, total_pages, total_results }: NOW_PLAYING_RESPONSE = await res.json();
-    console.log('DATA:', results);
-    setCurrentPage(page);
-    setTotalPages(total_pages);
-    setTotalResults(total_results);
-    setMovies(results);
-  }
-
-  const fetchGenres = async () => {
-    const res = await fetch('/api/genres');
-    const { genres }: GENRES_RESPONSE = await res.json();
-    setGenres(genres);
-  }
+  })
 
   return (
     <>
@@ -71,11 +100,7 @@ const Home = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className="min-h-screen w-full bg-gray-800">
-        <nav className="w-full bg-gray-900 py-2">
-          <h1 className="mx-auto text-center text-emerald-500 lg:text-3xl xl:text-4xl">
-            MovieRama
-          </h1>
-        </nav>
+        <Navigation />
         <section className="mx-auto flex w-full items-end justify-center border-b border-b-emerald-900 bg-gray-900 py-5 text-center sm:py-10">
           <div className="w-full max-w-7xl px-4">
             <input
@@ -94,42 +119,26 @@ const Home = () => {
               sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 
             `}
           >
-            {movies && movies.filter(m => m.title.toLowerCase().includes(search.toLowerCase())).map((movie) => {
+            {movies?.map((movie) => {
               return (
-                <div
+                <MovieCard 
                   key={movie.id}
-                  className="flex flex-col justify-between rounded border-2 border-emerald-400 bg-emerald-700 relative"
-                >
-                  <Image
-                    src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
-                    width={720}
-                    height={300}
-                    alt="movie image"
-                    // className="flex-grow"
-                  />
-                  <div className="flex flex-wrap justify-start gap-1 p-1 absolute top-0 left-0 right-0">
-                    {movie.genre_ids.map((g) => (
-                      <span
-                        key={g}
-                        className="rounded border border-emerald-400 p-1 text-sm font-semibold text-gray-800 bg-emerald-300 bg-opacity-100"
-                      >
-                        {genres?.filter(gen => gen.id === g)[0]?.name}
-                      </span>
-                    ))}
-                  </div>
-                  <div className="bg-emerald-500 py-1 text-center text-base text-gray-900">
-                    <span className=''>
-                      {new Date(movie.release_date).toLocaleDateString()}
-                    </span>
-                    <br />
-                    <span className='font-semibold'>
-                      {movie.title}
-                    </span>
-                  </div>
-                </div>
+                  movie={movie}
+                  genres={genresData?.genres as GENRE[]}
+                />
               );
             })}
+            {(isMoviesLoading || isGenresLoading) && (
+              <h3 className='text-center col-span-4'>Loading...</h3>
+            )}
           </div>
+          {(scrollPos > viewportHeight) && (
+            <div
+              className='fixed right-0.5 bottom-5 w-10 h-10 rounded-full text-base font-semibold bg-emerald-500 flex justify-center items-center border-2 border-yellow-300 text-gray-900'
+              onClick={() => window.scrollTo({ top: 0 })}>
+                TOP
+            </div>
+          )}
         </section>
       </main>
     </>
