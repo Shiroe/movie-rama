@@ -7,11 +7,11 @@ const TOKEN = process.env.TMDB_TOKEN;
 export type GENRE = {
   id: number;
   name: string;
-}
+};
 
 export type GENRES_RESPONSE = {
   genres: GENRE[];
-}
+};
 
 export default async function handler(
   req: NextApiRequest,

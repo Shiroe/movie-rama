@@ -2,7 +2,7 @@ import React from 'react';
 import '../styles/globals.css';
 import type { AppProps } from 'next/app';
 import { Inter } from '@next/font/google';
-import { QueryClient, QueryClientProvider } from 'react-query'
+import { QueryClient, QueryClientProvider } from 'react-query';
 
 const inter = Inter({
   subsets: ['latin'],

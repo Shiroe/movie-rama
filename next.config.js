@@ -14,8 +14,8 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: 'image.tmdb.org',
-      }
-    ]
+      },
+    ],
   },
   webpack: (config) => {
     config.resolve.alias = { ...config.resolve.alias, ...aliases };

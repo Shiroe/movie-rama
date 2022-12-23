@@ -8,6 +8,6 @@ const Navigation = () => {
       </h1>
     </nav>
   );
-}
+};
 
 export default Navigation;

@@ -10,12 +10,15 @@ import Navigation from 'src/Navigation';
 type FETCH_PARAMS = {
   page: number;
   search?: string;
-}
-const fetcher = async (url: string, params: FETCH_PARAMS ) => {
+};
+const fetcher = async (url: string, params: FETCH_PARAMS) => {
   const { page = 1, search = '' } = params;
   const paramsToPass = url.includes('genres') ? {} : { page, search };
-  return await fetch(url, { method: 'POST', body: JSON.stringify(paramsToPass)}).then((res) => res.json());
-}
+  return await fetch(url, {
+    method: 'POST',
+    body: JSON.stringify(paramsToPass),
+  }).then((res) => res.json());
+};
 
 type MOVIE_ENDPOINTS = 'now_playing' | 'movies';
 
@@ -23,7 +26,8 @@ const Home = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [search, setSearch] = useState<string>('');
 
-  const [movieEndpoint, setMovieEndpoint] = useState<MOVIE_ENDPOINTS>('now_playing');
+  const [movieEndpoint, setMovieEndpoint] =
+    useState<MOVIE_ENDPOINTS>('now_playing');
   const [movies, setMovies] = useState<Movie[] | null>(null);
 
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -36,44 +40,53 @@ const Home = () => {
   const {
     isLoading: isGenresLoading,
     error: genresError,
-    data: genresData
-  } = useQuery(['genres', { currentPage }], () => fetcher('/api/genres', { page: currentPage }));
+    data: genresData,
+  } = useQuery(['genres', { currentPage }], () =>
+    fetcher('/api/genres', { page: currentPage })
+  );
 
   const {
     isLoading: isMoviesLoading,
     error: moviesError,
-    data: moviesData
-  } = useQuery([movieEndpoint, currentPage, search], () => fetcher(`/api/${movieEndpoint}`, { page: currentPage, search }), {
-    onSuccess(data: NOW_PLAYING_RESPONSE) {
-      console.log('QUERY RES: ', data);
-      if (currentPage === 1) {
-        setMovies(data.results);
-      } else if (currentPage > 1 && movies) {
-        if (movies[movies.length - 1]?.id !== data.results[data.results.length - 1]?.id) {
-          setMovies([...movies, ...data.results])
-        } 
-      }
-      setTotalPages(data.total_pages)
-      setTotalResults(data.total_results);
-    },
-  });
+    data: moviesData,
+  } = useQuery(
+    [movieEndpoint, currentPage, search],
+    () => fetcher(`/api/${movieEndpoint}`, { page: currentPage, search }),
+    {
+      onSuccess(data: NOW_PLAYING_RESPONSE) {
+        console.log('QUERY RES: ', data);
+        if (currentPage === 1) {
+          setMovies(data.results);
+        } else if (currentPage > 1 && movies) {
+          if (
+            movies[movies.length - 1]?.id !==
+            data.results[data.results.length - 1]?.id
+          ) {
+            setMovies([...movies, ...data.results]);
+          }
+        }
+        setTotalPages(data.total_pages);
+        setTotalResults(data.total_results);
+      },
+    }
+  );
 
   useEffect(() => {
-    console.log('search effect')
+    console.log('search effect');
     setCurrentPage(1);
     if (search.length > 0) {
       setMovieEndpoint('movies');
-    } else { 
+    } else {
       setMovieEndpoint('now_playing');
     }
   }, [search]);
 
   useEffect(() => {
-    console.log('window scroll effect')
+    console.log('window scroll effect');
     const updateScrollPosition = () => {
       const currentPosition = window.scrollY;
       const scrollHeight = document.body.scrollHeight - window.innerHeight;
-      
+
       setScrollPos(currentPosition);
       setViewportHeight(window.screen.height);
 
@@ -82,14 +95,14 @@ const Home = () => {
         if (currentPage >= totalPages) return;
         setCurrentPage(currentPage + 1);
       }
-    }
+    };
 
     window.addEventListener('scroll', updateScrollPosition);
 
     return () => {
       window.removeEventListener('scroll', updateScrollPosition);
-    }
-  })
+    };
+  });
 
   return (
     <>
@@ -121,7 +134,7 @@ const Home = () => {
           >
             {movies?.map((movie) => {
               return (
-                <MovieCard 
+                <MovieCard
                   key={movie.id}
                   movie={movie}
                   genres={genresData?.genres as GENRE[]}
@@ -129,14 +142,15 @@ const Home = () => {
               );
             })}
             {(isMoviesLoading || isGenresLoading) && (
-              <h3 className='text-center col-span-4'>Loading...</h3>
+              <h3 className="col-span-4 text-center">Loading...</h3>
             )}
           </div>
-          {(scrollPos > viewportHeight) && (
+          {scrollPos > viewportHeight && (
             <div
-              className='fixed right-0.5 bottom-5 w-10 h-10 rounded-full text-base font-semibold bg-emerald-500 flex justify-center items-center border-2 border-yellow-300 text-gray-900'
-              onClick={() => window.scrollTo({ top: 0 })}>
-                TOP
+              className="fixed right-0.5 bottom-5 flex h-10 w-10 items-center justify-center rounded-full border-2 border-yellow-300 bg-emerald-500 text-base font-semibold text-gray-900"
+              onClick={() => window.scrollTo({ top: 0 })}
+            >
+              TOP
             </div>
           )}
         </section>
