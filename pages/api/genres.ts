@@ -17,6 +17,7 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<GENRE[]>
 ) {
+  const { page } = req.body;
   const URL = `${API}/genre/movie/list?api_key=${TOKEN}`;
   const response = await fetch(URL);
   const data = await response.json();

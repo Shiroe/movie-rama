@@ -36,7 +36,8 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<NOW_PLAYING_RESPONSE>
 ) {
-  const URL = `${API}/movie/now_playing?api_key=${TOKEN}`;
+  const { page } = JSON.parse(req.body);
+  const URL = `${API}/movie/now_playing?api_key=${TOKEN}&page=${page}`;
   const response = await fetch(URL);
   const data = await response.json();
 
