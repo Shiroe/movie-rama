@@ -7,6 +7,8 @@ import type { GENRE } from './api/genres';
 import MovieCard from 'src/components/MovieCard';
 import Navigation from 'src/Navigation';
 
+import { ArrowBigTop } from 'tabler-icons-react';
+
 type FETCH_PARAMS = {
   page: number;
   search?: string;
@@ -55,7 +57,6 @@ const Home = () => {
     () => fetcher(`/api/${movieEndpoint}`, { page: currentPage, search }),
     {
       onSuccess(data: MOVIES_RESPONSE) {
-        console.log('QUERY RES: ', data);
         if (currentPage === 1) {
           setMovies(data.results);
         } else if (currentPage > 1 && movies) {
@@ -136,7 +137,7 @@ const Home = () => {
           </div>
         </section>
         <section className="">
-          <div
+          <table
             className={`
               mx-auto grid max-w-7xl grid-cols-1 gap-5 bg-gray-700 p-5 pt-10
               sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 
@@ -156,13 +157,13 @@ const Home = () => {
             {(isMoviesLoading || isGenresLoading) && (
               <h3 className="col-span-4 text-center">Loading...</h3>
             )}
-          </div>
+          </table>
           {scrollPos > viewportHeight && (
             <div
-              className="fixed right-0.5 bottom-5 flex h-10 w-10 items-center cursor-pointer justify-center rounded-full border-2 border-yellow-300 bg-emerald-500 text-base font-semibold text-gray-900"
+              className="fixed right-6 bottom-5 flex h-10 w-10 items-center cursor-pointer justify-center rounded-full bg-emerald-500 text-base font-semibold text-gray-900"
               onClick={() => window.scrollTo({ top: 0 })}
             >
-              TOP
+              <ArrowBigTop color='rgb(17,24,39)' />
             </div>
           )}
         </section>
