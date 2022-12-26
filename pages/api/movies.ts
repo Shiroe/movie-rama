@@ -21,7 +21,7 @@ export type Movie = {
   vote_count: number;
 };
 
-export type NOW_PLAYING_RESPONSE = {
+export type MOVIES_RESPONSE = {
   dates: {
     maximum: string;
     minimum: string;
@@ -34,7 +34,7 @@ export type NOW_PLAYING_RESPONSE = {
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<NOW_PLAYING_RESPONSE>
+  res: NextApiResponse<MOVIES_RESPONSE>
 ) {
   const { page, search } = JSON.parse(req.body);
   const URL = `${API}/search/movie?api_key=${TOKEN}&page=${page}&query=${search}`;

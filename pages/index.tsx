@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
 import { useQuery } from 'react-query';
 
-import type { Movie, NOW_PLAYING_RESPONSE } from './api/now_playing';
-import type { GENRE, GENRES_RESPONSE } from './api/genres';
+import type { Movie, MOVIES_RESPONSE } from './api/movies';
+import type { GENRE } from './api/genres';
 import MovieCard from 'src/components/MovieCard';
 import Navigation from 'src/Navigation';
 
@@ -53,7 +53,7 @@ const Home = () => {
     [movieEndpoint, currentPage, search],
     () => fetcher(`/api/${movieEndpoint}`, { page: currentPage, search }),
     {
-      onSuccess(data: NOW_PLAYING_RESPONSE) {
+      onSuccess(data: MOVIES_RESPONSE) {
         console.log('QUERY RES: ', data);
         if (currentPage === 1) {
           setMovies(data.results);
@@ -72,17 +72,18 @@ const Home = () => {
   );
 
   useEffect(() => {
-    console.log('search effect');
     setCurrentPage(1);
-    if (search.length > 0) {
-      setMovieEndpoint('movies');
-    } else {
+
+    if (search.length > 0 && movieEndpoint === 'movies') return; 
+
+    if (search.length === 0) {
       setMovieEndpoint('now_playing');
+    } else {
+      setMovieEndpoint('movies');
     }
-  }, [search]);
+  }, [search, movieEndpoint]);
 
   useEffect(() => {
-    console.log('window scroll effect');
     const updateScrollPosition = () => {
       const currentPosition = window.scrollY;
       const scrollHeight = document.body.scrollHeight - window.innerHeight;
@@ -90,7 +91,6 @@ const Home = () => {
       setScrollPos(currentPosition);
       setViewportHeight(window.screen.height);
 
-      console.log('scrolled', scrollHeight, ' : ', currentPosition);
       if (Math.abs(Math.ceil(scrollHeight) - Math.ceil(currentPosition)) <= 3) {
         if (currentPage >= totalPages) return;
         setCurrentPage(currentPage + 1);
@@ -138,6 +138,7 @@ const Home = () => {
                   key={movie.id}
                   movie={movie}
                   genres={genresData?.genres as GENRE[]}
+                  isExpanded={}
                 />
               );
             })}
@@ -147,7 +148,7 @@ const Home = () => {
           </div>
           {scrollPos > viewportHeight && (
             <div
-              className="fixed right-0.5 bottom-5 flex h-10 w-10 items-center justify-center rounded-full border-2 border-yellow-300 bg-emerald-500 text-base font-semibold text-gray-900"
+              className="fixed right-0.5 bottom-5 flex h-10 w-10 items-center cursor-pointer justify-center rounded-full border-2 border-yellow-300 bg-emerald-500 text-base font-semibold text-gray-900"
               onClick={() => window.scrollTo({ top: 0 })}
             >
               TOP
