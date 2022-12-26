@@ -1,23 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 
-import type { Movie } from '../../pages/api/now_playing';
+import type { Movie } from '../../pages/api/movies';
 import { GENRE } from '../../pages/api/genres';
 
 type MovieCardProps = {
   movie: Movie;
   genres: GENRE[];
+  isExpanded?: boolean;
+  onClick: (movieId: number) => void;
 };
 
-const MovieCard = ({ movie, genres }: MovieCardProps) => {
+const MovieCard = ({ movie, genres, isExpanded = false, onClick }: MovieCardProps) => {
   return (
     <div
       key={movie.id}
-      className="relative flex flex-col justify-between rounded border-2 border-emerald-400 bg-emerald-700"
+      onClick={() => onClick(movie.id)}
+      className={`relative flex flex-col justify-between rounded border-2 border-emerald-400 bg-emerald-700 ${isExpanded ? 'col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4 cursor-zoom-out' : 'cursor-zoom-in'}`}
     >
       <Image
         src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
-        width={720}
+        width={isExpanded ? 320 : 420}
         height={300}
         alt="movie image"
       />

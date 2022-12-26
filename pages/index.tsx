@@ -25,6 +25,7 @@ type MOVIE_ENDPOINTS = 'now_playing' | 'movies';
 const Home = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [search, setSearch] = useState<string>('');
+  const [expandedMovieId, setExpandedMovieId] = useState<number>(-1);
 
   const [movieEndpoint, setMovieEndpoint] =
     useState<MOVIE_ENDPOINTS>('now_playing');
@@ -73,6 +74,7 @@ const Home = () => {
 
   useEffect(() => {
     setCurrentPage(1);
+    setExpandedMovieId(-1);
 
     if (search.length > 0 && movieEndpoint === 'movies') return; 
 
@@ -103,6 +105,14 @@ const Home = () => {
       window.removeEventListener('scroll', updateScrollPosition);
     };
   });
+
+  const onMovieExpand = (movieId: number): void => {
+    if (expandedMovieId === movieId) {
+      setExpandedMovieId(-1)
+    } else {
+      setExpandedMovieId(movieId);
+    }
+  }
 
   return (
     <>
@@ -138,7 +148,8 @@ const Home = () => {
                   key={movie.id}
                   movie={movie}
                   genres={genresData?.genres as GENRE[]}
-                  isExpanded={}
+                  isExpanded={expandedMovieId === movie.id}
+                  onClick={onMovieExpand}
                 />
               );
             })}
