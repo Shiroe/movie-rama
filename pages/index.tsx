@@ -77,7 +77,7 @@ const Home = () => {
     setCurrentPage(1);
     setExpandedMovieId(-1);
 
-    if (search.length > 0 && movieEndpoint === 'movies') return; 
+    if (search.length > 0 && movieEndpoint === 'movies') return;
 
     if (search.length === 0) {
       setMovieEndpoint('now_playing');
@@ -109,11 +109,11 @@ const Home = () => {
 
   const onMovieExpand = (movieId: number): void => {
     if (expandedMovieId === movieId) {
-      setExpandedMovieId(-1)
+      setExpandedMovieId(-1);
     } else {
       setExpandedMovieId(movieId);
     }
-  }
+  };
 
   return (
     <>
@@ -160,10 +160,10 @@ const Home = () => {
           </table>
           {scrollPos > viewportHeight && (
             <div
-              className="fixed right-6 bottom-5 flex h-10 w-10 items-center cursor-pointer justify-center rounded-full bg-emerald-500 text-base font-semibold text-gray-900"
+              className="fixed right-6 bottom-5 flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-emerald-500 text-base font-semibold text-gray-900"
               onClick={() => window.scrollTo({ top: 0 })}
             >
-              <ArrowBigTop color='rgb(17,24,39)' />
+              <ArrowBigTop color="rgb(17,24,39)" />
             </div>
           )}
         </section>

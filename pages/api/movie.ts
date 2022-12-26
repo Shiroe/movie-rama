@@ -15,7 +15,7 @@ type VIDEO = {
   site: string;
   size: number;
   type: string;
-}
+};
 
 type REVIEW = {
   author: string;
@@ -30,7 +30,7 @@ type REVIEW = {
   id: string;
   updated_at: string;
   url: string;
-}
+};
 
 type SIMILAR = {
   adult: boolean;
@@ -47,17 +47,17 @@ type SIMILAR = {
   video: boolean;
   vote_average: number;
   vote_count: number;
-}
+};
 
 export type MOVIE_RESPONSE = {
   videos: VIDEO[];
   reviews: REVIEW[];
   similars: SIMILAR[];
-}
+};
 
 export type MOVIE_RESPONSE_ERROR = {
   data: string;
-}
+};
 
 export default async function handler(
   req: NextApiRequest,
@@ -66,7 +66,7 @@ export default async function handler(
   const { id } = JSON.parse(req.body);
 
   if (!id) res.status(405).json({ data: 'Bad request, missing movie ID.' });
-  
+
   const videoURL = `${API}/movie/${id}/videos?api_key=${TOKEN}`;
   const similarsURL = `${API}/movie/${id}/similar?api_key=${TOKEN}`;
   const reviewsURL = `${API}/movie/${id}/reviews?api_key=${TOKEN}`;
@@ -74,17 +74,22 @@ export default async function handler(
   const videoRes = await fetch(videoURL);
   const similarsRes = await fetch(similarsURL);
   const reviewsRes = await fetch(reviewsURL);
-  
+
   const videoData = await videoRes.json();
   const similarsData = await similarsRes.json();
   const reviewsData = await reviewsRes.json();
 
-  const status = videoData.status === 200 || similarsData.status === 200 || reviewsData.status === 200 ? 200 : 404;
+  const status =
+    videoData.status === 200 ||
+    similarsData.status === 200 ||
+    reviewsData.status === 200
+      ? 200
+      : 404;
 
   const data = {
     videos: videoData.results,
     similars: similarsData.results,
-    reviews: reviewsData.results
+    reviews: reviewsData.results,
   };
 
   res.status(status).json(data);
